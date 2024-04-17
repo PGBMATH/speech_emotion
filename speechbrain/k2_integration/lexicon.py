@@ -406,6 +406,7 @@ def prepare_char_lexicon(
     extra_csv_files=[],
     column_text_key="wrd",
     add_word_boundary=True,
+    skip_prep=False,
 ):
     """
     Read extra_csv_files to generate a $lang_dir/lexicon.txt for k2 training.
@@ -445,6 +446,8 @@ def prepare_char_lexicon(
     add_word_boundary: bool
         whether to add word boundary symbols <eow> at the end of each line to the
         lexicon for every word.
+    skip_prep: bool
+        skip this step
 
     Example
     -------
@@ -469,6 +472,8 @@ def prepare_char_lexicon(
     >>> vocab_files = []
     >>> prepare_char_lexicon(lang_dir, vocab_files, extra_csv_files=extra_csv_files, add_word_boundary=False)
     """
+    if skip_prep:
+        return
     # Read train.csv, dev-clean.csv to generate a lexicon.txt for k2 training
     lexicon = dict()
     if len(extra_csv_files) != 0:

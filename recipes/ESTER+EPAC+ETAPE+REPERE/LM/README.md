@@ -2,7 +2,7 @@
 This folder contains recipes for training language models for the above datasets.
 It supports n-gram LM.
 Depending on the ASR token type ("phone", or "char"), an apostrophe (') should
-be preceded by a space or not.
+be followed by a space or not.
 
 Example:
 * "C'est" -> modeled as "sɛ" -> mapped to "C'EST"
@@ -10,6 +10,13 @@ Example:
 
 ## Installing Extra Dependencies
 
+Before proceeding, ensure you have installed the necessary additional dependencies. To do this, simply run the following command in your terminal:
+
+```
+pip install -r extra_requirements.txt
+```
+
+If you want to train an n-gram, you will first need to install `k2`. The integration has been tested with `k2==1.24.4` and `torch==2.0.1`, although it should also work with any `torch` version as long as `k2` supports it (compatibility list [here](https://k2-fsa.github.io/k2/installation/pre-compiled-cuda-wheels-linux/index.html)). You can install `k2` by following the instructions [here](https://k2-fsa.github.io/k2/installation/from_wheels.html#linux-cuda-example).
 If you want to train an n-gram, in this recipe we are using the popular KenLM library. Let's start by installing the Ubuntu library prerequisites. For a complete guide on how to install required dependencies, please refer to [this](https://kheafield.com/code/kenlm/dependencies/) link:
  ```
  sudo apt install build-essential cmake libboost-system-dev libboost-thread-dev libboost-program-options-dev libboost-test-dev libeigen3-dev zlib1g-dev libbz2-dev liblzma-dev
