@@ -33,11 +33,6 @@ from speechbrain.utils.data_utils import get_list_from_csv
 import soundfile
 import string
 
-delset = string.punctuation
-delset = delset.replace("'", "")
-delset = delset.replace("%", "")
-delset = delset.replace(",", "")
-
 logger = logging.getLogger(__name__)
 OPT_FILE = "opt_stm_prepare.pkl"
 SAMPLERATE = 16000
@@ -184,7 +179,7 @@ def prepare_stm(  # noqa
         )
         with open(filename, "r") as file:
             data = file.readlines()
-        for line in transform_lines(filterout_lines(data)):
+        for line in norm_stm_lines(filterout_lines(data)):
             parts = line.split()
             wav_key = normalize_wav_key(parts[0])
             if not ignore_wav and wav_key not in wav_paths_map:
@@ -193,7 +188,7 @@ def prepare_stm(  # noqa
                 )
                 break
             else:
-                text = text_transform(
+                text = normalize_text(
                     f"{' '.join(parts[6:])}",
                     new_word_on_apostrophe=new_word_on_apostrophe,
                 )
@@ -293,6 +288,19 @@ def prepare_stm(  # noqa
 
 
 def normalize_wav_key(key):
+    """
+    This function normalizes a key typically used for referencing WAV files.
+
+    Arguments
+    ---------
+    key : str
+        The original key to be normalized.
+
+    Returns
+    ---------
+    str
+        The normalized key after removing specific substrings, replacing characters, and converting to lowercase.
+    """
     key = key.replace("suite", "")
     key = key.replace("_bis", "")
     key = key.replace("automatique", "")
@@ -304,6 +312,21 @@ def normalize_wav_key(key):
 
 
 def custom_glob_filter(directory):
+    """
+    This function provides custom filtering functionality for file paths using glob patterns.
+
+    Arguments
+    ---------
+    directory : str
+        The directory path or glob pattern for file matching.
+
+    Returns
+    ---------
+    tuple
+        A tuple containing two elements:
+            - A list of paths matching the provided glob pattern in the directory.
+            - An optional string specifying an exact match to be excluded from the results.
+    """
     # Support for exclude exact word
     # https://stackoverflow.com/questions/20638040/glob-exclude-pattern
     try:  # Try to parse exact match direction
@@ -320,8 +343,20 @@ def custom_glob_filter(directory):
     return paths, exclude_match
 
 
-def transform_lines(line):
-    # Perform string replacements using regular expressions
+def norm_stm_lines(line):
+    """
+    Normalizes stm line
+
+    Arguments
+    ---------
+    line : str or list of str
+        The input line or list of lines to be transformed.
+
+    Returns
+    ---------
+    list of str
+        The transformed lines after performing string replacements.
+    """
     line = [re.sub(r"<F0_M>", "<o,f0,male>", line) for line in line]
     line = [re.sub(r"<F0_F>", "<o,f0,female>", line) for line in line]
     line = [re.sub(r"\([0-9]+\)", "", line) for line in line]
@@ -330,7 +365,28 @@ def transform_lines(line):
     return line
 
 
-def text_transform(text, new_word_on_apostrophe=True):
+def normalize_text(text, new_word_on_apostrophe=True):
+    """
+    This function normalizes text by applying various transformations.
+
+    Arguments
+    ---------
+    text : str
+        The original text to be normalized.
+
+    new_word_on_apostrophe : Optional[bool]
+        If True, inserts a space after an apostrophe, creating a new word. Default is True.
+
+    Returns
+    ---------
+    str
+        The normalized text after applying multiple substitutions and transformations, including:
+        - Fixing text encoding issues.
+        - Substituting specific words or phrases.
+        - Removing or replacing special characters.
+        - Converting numbers to words in French.
+        - Handling punctuation and special cases.
+    """
 
     text = ftfy.fix_text(text)
 
@@ -352,11 +408,16 @@ def text_transform(text, new_word_on_apostrophe=True):
     text = text.replace("{", "[").replace("}", "]")
 
     text = re.sub(r"\.\.\.|\*|\[.*?\]", "", text.lower())
-    delset_specific = delset
+
+    delset = string.punctuation
+    delset = delset.replace("'", "")
+    delset = delset.replace("%", "")
+    delset = delset.replace(",", "")
+
     remove_clear = "()=-"
     for char in remove_clear:
-        delset_specific = delset_specific.replace(char, "")
-    text = text.translate(str.maketrans("", "", delset_specific))
+        delset = delset.replace(char, "")
+    text = text.translate(str.maketrans("", "", delset))
 
     # Undecidable variant heared like on (n') en:
     text = re.sub(r"\(.+?\)", "", text)
@@ -440,7 +501,20 @@ def text_transform(text, new_word_on_apostrophe=True):
 
 
 def filterout_lines(lines):
-    # Filter out lines containing specific patterns
+    """
+    This function filters out lines from stm entries based on specific patterns.
+
+    Arguments
+    ---------
+    lines : list of str
+        A list containing lines of text to be filtered.
+
+    Returns
+    ---------
+    list of str
+        A list containing lines of text after filtering out lines containing specific patterns such as "ignore_time_segment_in_scoring", ";;", "inter_segment_gap", and "excluded_region".
+
+    """
     return [
         line
         for line in lines

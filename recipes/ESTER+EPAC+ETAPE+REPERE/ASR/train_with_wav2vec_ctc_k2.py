@@ -13,7 +13,7 @@ Authors
 """
 
 try:
-    # Hack, to make phonemizer work!
+    # Hack to make phonemizer work!
     # If torch is instanced before phonemizer it does not work
     import phonemizer
     phonemizer.phonemize("c'est", language="fr-fr")
@@ -67,12 +67,6 @@ class ASR(sb.Brain):
 
         # Compute outputs
         logits = self.modules.ctc_lin(x)
-
-        # Upsample the inputs if they have been highly downsampled
-        if hasattr(self.hparams, "upsampling") and self.hparams.upsampling:
-            logits = logits.view(
-                logits.shape[0], -1, self.hparams.output_neurons
-            )
 
         p_ctc = self.hparams.log_softmax(logits)
         paths = None
@@ -379,7 +373,7 @@ if __name__ == "__main__":
                 "lang_dir": hparams["lang_dir"],
                 "vocab_files": [],
                 # "vocab_files": [hparams["vocab_file"]],
-                "extra_csv_files": [hparams["output_folder"] + "/train.csv"]
+                "csv_files": [hparams["output_folder"] + "/train.csv"]
                 if not hparams["skip_prep"]
                 else [],
                 "add_word_boundary": hparams["add_word_boundary"],
@@ -394,7 +388,7 @@ if __name__ == "__main__":
                 "lang_dir": hparams["lang_dir"],
                 "vocab_files": [],
                 # "vocab_files": [hparams["vocab_file"]],
-                "extra_csv_files": [hparams["output_folder"] + "/train.csv"]
+                "csv_files": [hparams["output_folder"] + "/train.csv"]
                 if not hparams["skip_prep"]
                 else [],
                 "add_word_boundary": hparams["add_word_boundary"],

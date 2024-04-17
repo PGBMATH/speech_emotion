@@ -69,12 +69,6 @@ class ASR(sb.Brain):
         # Compute outputs
         logits = self.modules.ctc_lin(x)
 
-        # Upsample the inputs if they have been highly downsampled
-        if hasattr(self.hparams, "upsampling") and self.hparams.upsampling:
-            logits = logits.view(
-                logits.shape[0], -1, self.hparams.output_neurons
-            )
-
         p_ctc = self.hparams.log_softmax(logits)
         paths = None
         if stage == sb.Stage.VALID or stage == sb.Stage.TEST:
@@ -372,7 +366,7 @@ if __name__ == "__main__":
         kwargs={
             "lang_dir": hparams["lang_dir"],
             "vocab_files": [hparams["vocab_file"]],
-            "extra_csv_files": (
+            "csv_files": (
                 [hparams["output_folder"] + "/train.csv"]
                 if not hparams["skip_prep"]
                 else []
