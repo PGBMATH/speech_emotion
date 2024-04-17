@@ -5,10 +5,12 @@ Authors:
  * Aku Rouhe 2020
  * Peter Plantinga 2023
 """
+
 import datetime
 import os
-import torch
 from functools import wraps
+
+import torch
 
 MAIN_PROC_ONLY = 0
 
@@ -158,6 +160,10 @@ def ddp_init_group(run_opts):
     ---------
     run_opts: list
         A list of arguments to parse, most often from `sys.argv[1:]`.
+
+    Returns
+    -------
+    None
     """
     rank = os.environ.get("RANK")
     local_rank = os.environ.get("LOCAL_RANK")
@@ -184,7 +190,7 @@ def ddp_init_group(run_opts):
     else:
         raise ValueError(
             run_opts["distributed_backend"]
-            + " communcation protocol doesn't exist."
+            + " communication protocol doesn't exist."
         )
 
     # rank arg is used to set the right rank of the current process for ddp.
