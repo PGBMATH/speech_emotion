@@ -7,7 +7,7 @@
 # Seed needs to be set at top of yaml, before objects with parameters are made
 seed: 1116
 __set_seed: !apply:torch.manual_seed [!ref <seed>]
-output_folder: !ref results/train_wav2vec2_<token_type>_k2/<seed>
+output_folder: !ref results/train_<merge_train_csv>_wav2vec2_<token_type>_k2/<seed>
 save_folder: !ref <output_folder>/save
 train_log: !ref <output_folder>/train_log.txt
 
@@ -22,19 +22,20 @@ wav_directory: !ref <data_folder>/**/*.wav
 train_splits: {"train_ESTER2":["/ESTER2/train_trans_rapide/*", "/ESTER2/train/*"], "train_ESTER1":["/ESTER1/train/*"], "train_EPAC":["/EPAC/train/*"], "train_ETAPE":["/ETAPE/train/*"], "train_REPERE":["/REPERE/train/*"]}
 dev_splits: {"dev_ESTER2":["/ESTER2/dev/*"], "dev_ESTER1":["/ESTER1/dev/*"], "dev_ETAPE":["/ETAPE/dev/*"], "dev_REPERE2014":["/REPERE/dev2014/*"]}
 test_splits: {"test_ESTER2":["/ESTER2/test/*"], "test_ESTER1":["/ESTER1/test/*"], "test_ETAPE":["/ETAPE/test/*"], "test_EPAC":["/EPAC/test/*"] , "test_REPERE2014":["/REPERE/test2014/*"]}
-merge_train_csv: "train_ESTER2, train_ESTER1, train_EPAC, train_ETAPE, train_REPERE"
+merge_train_csv: "train_ESTER2+train_ESTER1+train_EPAC+train_ETAPE+train_REPERE"
 prep_save_folder: !ref <output_folder>
 skip_prep: False
 skip_token_prep: False
 ckpt_interval_minutes: 10 # save checkpoint every N min
-train_csv: !ref <output_folder>/train.csv
-valid_csv: !ref <output_folder>/dev_ESTER2.csv
+# the following CSVs are found in <output_folder>
+train_csv: train.csv
+valid_csv: dev_ESTER2.csv
 test_csv:
-   - !ref <output_folder>/test_ESTER2.csv
-   - !ref <output_folder>/test_ESTER1.csv
-   - !ref <output_folder>/test_ETAPE.csv
-   - !ref <output_folder>/test_EPAC.csv
-   - !ref <output_folder>/test_REPERE2014.csv
+   - test_ESTER2.csv
+   - test_ESTER1.csv
+   - test_ETAPE.csv
+   - test_EPAC.csv
+   - test_REPERE2014.csv
 
 # For k2 CTC training
 caching: True
@@ -82,6 +83,8 @@ batch_size: 8
 num_workers: 20
 grad_accumulation_factor: 2
 test_batch_size: 12
+# nonfinite loss does happen from time to time on some segments with char training
+nonfinite_patience: 20
 
 # In seconds
 avoid_if_longer_than: 90.0
@@ -105,13 +108,14 @@ activation: !name:torch.nn.LeakyReLU
 dnn_layers: 4
 dnn_neurons: 1280
 freeze_wav2vec: True
+number_lines_for_tokens: 52
 
 # Outputs
 # in k2 check lang/tokens.txt
 # BPE size, index(blank/eos/bos) = 0
 output_neurons: !apply:speechbrain.lobes.utils.NumberOfLines
    file: !ref <lang_dir>/tokens.txt
-   default: 52
+   default: !ref <number_lines_for_tokens>
 
 #
 # Functions and classes

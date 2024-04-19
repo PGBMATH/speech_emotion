@@ -16,6 +16,7 @@ try:
     # Hack to make phonemizer work!
     # If torch is instanced before phonemizer it does not work
     import phonemizer
+
     phonemizer.phonemize("c'est", language="fr-fr")
 except Exception as e:
     pass
@@ -242,7 +243,8 @@ def dataio_prepare(hparams):
     if hparams["sorting"] == "ascending":
         # we sort training data to speed up training and get better results.
         train_data = train_data.filtered_sorted(
-            sort_key="duration", reverse=False,
+            sort_key="duration",
+            reverse=False,
             key_max_value={"duration": hparams["avoid_if_longer_than"]},
             key_min_value={"duration": hparams["avoid_if_smaller_than"]},
         )
@@ -251,7 +253,8 @@ def dataio_prepare(hparams):
 
     elif hparams["sorting"] == "descending":
         train_data = train_data.filtered_sorted(
-            sort_key="duration", reverse=True,
+            sort_key="duration",
+            reverse=True,
             key_max_value={"duration": hparams["avoid_if_longer_than"]},
             key_min_value={"duration": hparams["avoid_if_smaller_than"]},
         )
@@ -281,7 +284,8 @@ def dataio_prepare(hparams):
     for csv_file in hparams["test_csv"]:
         name = Path(csv_file).stem
         test_datasets[name] = sb.dataio.dataset.DynamicItemDataset.from_csv(
-            csv_path=csv_file, replacements={"data_root": data_folder}
+            csv_path=os.path.join(hparams["output_folder"], csv_file),
+            replacements={"data_root": data_folder},
         )
         test_datasets[name] = test_datasets[name].filtered_sorted(
             sort_key="duration",
@@ -296,16 +300,16 @@ def dataio_prepare(hparams):
     def audio_pipeline(wav, start, stop, wrd):
         start = int(float(start) * hparams["sample_rate"])
         stop = int(float(stop) * hparams["sample_rate"])
-        sig = sb.dataio.dataio.read_audio({"file": wav, "start": start, "stop": stop})
+        sig = sb.dataio.dataio.read_audio(
+            {"file": wav, "start": start, "stop": stop}
+        )
         return sig
 
     sb.dataio.dataset.add_dynamic_item(datasets, audio_pipeline)
 
     # 3. Define text pipeline:
     @sb.utils.data_pipeline.takes("wrd")
-    @sb.utils.data_pipeline.provides(
-        "wrd"
-    )
+    @sb.utils.data_pipeline.provides("wrd")
     def text_pipeline(wrd):
         yield wrd
 
@@ -329,6 +333,13 @@ if __name__ == "__main__":
 
     with open(hparams_file) as fin:
         hparams = load_hyperpyyaml(fin, overrides)
+
+    hparams["train_csv"] = os.path.join(
+        hparams["output_folder"], hparams["train_csv"]
+    )
+    hparams["valid_csv"] = os.path.join(
+        hparams["output_folder"], hparams["valid_csv"]
+    )
 
     # env_corrupt is not supported with k2 yet
     if hparams.get("env_corrupt", None):
@@ -354,7 +365,7 @@ if __name__ == "__main__":
             "dev_splits": hparams["dev_splits"],
             "te_splits": hparams["test_splits"],
             "save_folder": hparams["output_folder"],
-            "merge_train_csv": hparams["merge_train_csv"].split(","),
+            "merge_train_csv": hparams["merge_train_csv"].split("+"),
             "train_csv": hparams["train_csv"],
             "skip_prep": hparams["skip_prep"],
             "new_word_on_apostrophe": hparams["token_type"] in ["char"],
@@ -401,7 +412,6 @@ if __name__ == "__main__":
             f"token_type={token_type} not not implemented"
         )
 
-
     caching = (
         {"cache": False}
         if "caching" in hparams and hparams["caching"] is False
@@ -411,12 +421,12 @@ if __name__ == "__main__":
     # Create the lang directory for k2
     run_on_main(
         sbk2.prepare_lang.prepare_lang,
-            kwargs={
-                "lang_dir": hparams["lang_dir"],
-                "sil_prob": hparams["sil_prob"],
+        kwargs={
+            "lang_dir": hparams["lang_dir"],
+            "sil_prob": hparams["sil_prob"],
             **caching,
-            },
-        )
+        },
+    )
 
     # Trainer initialization
     asr_brain = ASR(
