@@ -139,7 +139,7 @@ if __name__ == "__main__":
         kwargs={
             "lang_dir": hparams["lang_dir"],
             "vocab_files": [hparams["vocab_file"]],
-            "extra_csv_files": (
+            "csv_files": (
                 [hparams["output_folder"] + "/train.csv"]
                 if not hparams["skip_prep"]
                 else []

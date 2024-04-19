@@ -1,6 +1,6 @@
 # ################################
 # Model: wav2vec2 + DNN + CTC + LM (k2)
-# Augmentation: SpecAugment
+# Augmentation: SpecAugment + Speed
 # Authors: Pierre Champion 2023
 # ################################
 
@@ -21,7 +21,7 @@ stm_directory: !ref <data_folder>/**/[^\.ne_e2\.|\.ne\.|\.spk\.|part\.]*.stm
 wav_directory: !ref <data_folder>/**/*.wav
 train_splits: {"train_ESTER2":["/ESTER2/train_trans_rapide/*", "/ESTER2/train/*"], "train_ESTER1":["/ESTER1/train/*"], "train_EPAC":["/EPAC/train/*"], "train_ETAPE":["/ETAPE/train/*"], "train_REPERE":["/REPERE/train/*"]}
 dev_splits: {"dev_ESTER2":["/ESTER2/dev/*"], "dev_ESTER1":["/ESTER1/dev/*"], "dev_ETAPE":["/ETAPE/dev/*"], "dev_REPERE2014":["/REPERE/dev2014/*"]}
-test_splits: {"test_ESTER2":["/ESTER2/test/*"], "test_ESTER1":["/ESTER1/test/*"], "test_ETAPE":["/ETAPE/test/*"], "test_EPAC":["/EPAC/test/*"] , "test_REPERE2014":["/REPERE/test2014/*"]}
+test_splits: {"test_ESTER2":["/ESTER2/test/*"], "test_ESTER1":["/ESTER1/test/*"], "test_ETAPE":["/ETAPE/test/*"], "test_EPAC":["/EPAC/test/*"], "test_REPERE2014":["/REPERE/test2014/*"]}
 merge_train_csv: "train_ESTER2+train_ESTER1+train_EPAC+train_ETAPE+train_REPERE"
 prep_save_folder: !ref <output_folder>
 skip_prep: False
@@ -66,7 +66,6 @@ rescoring_lm_scale: 0.4
 lm_dir: ../LM/results/n_gram_lm
 
 G_arpa: 3-for-char-gram.arpa
-# G_arpa: pguyot.arpa
 G_rescoring_arpa: 4-for-char-gram.arpa
 
 # Training parameters
@@ -152,7 +151,7 @@ wav_augment: !new:speechbrain.augment.augmenter.Augmenter
    augmentations: [
       !ref <speed_perturb>,
       !ref <drop_freq>,
-      ]
+   ]
 
 enc: !new:speechbrain.lobes.models.VanillaNN.VanillaNN
    input_shape: [null, null, 1280]

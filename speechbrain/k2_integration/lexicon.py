@@ -21,9 +21,9 @@ import os
 import re
 from pathlib import Path
 from typing import List, Optional, Tuple, Union
-from tqdm import tqdm
 
 import torch
+from tqdm import tqdm
 
 from . import k2  # import k2 from ./__init__.py
 
@@ -572,6 +572,7 @@ def prepare_phone_lexicon_espeak(
     try:
         from phonemizer.backend import EspeakBackend
         from phonemizer.separator import Separator
+
         logging.getLogger("phonemizer").setLevel(logging.CRITICAL)
         logging.getLogger("phonemizer").propagate = False
     except ImportError:
@@ -580,10 +581,8 @@ def prepare_phone_lexicon_espeak(
             "Checkout https://github.com/bootphon/phonemizer / https://github.com/espeak-ng/espeak-ng"
         )
 
-    separator = Separator(phone=' ', word=None)
-    backend = EspeakBackend('fr-fr')
-
-
+    separator = Separator(phone=" ", word=None)
+    backend = EspeakBackend("fr-fr")
 
     # Read train.csv, dev-clean.csv to generate a lexicon.txt for k2 training
     lexicon = dict()
@@ -594,9 +593,13 @@ def prepare_phone_lexicon_espeak(
                 for row in tqdm(csv_reader, desc="Running phonemizer G2P"):
                     # Split the transcription into words
                     words = row[column_text_key].split()
-                    phones = backend.phonemize(words, separator=separator, strip=True)
+                    phones = backend.phonemize(
+                        words, separator=separator, strip=True
+                    )
                     for word, phone in zip(words, phones):
-                        phone = re.sub("\([^)]*\)", "", phone).strip() # remove code switching
+                        phone = re.sub(
+                            r"\([^)]*\)", "", phone
+                        ).strip()  # remove code switching
                         if add_word_boundary:
                             lexicon[word] = phone + " " + EOW
                         else:
@@ -607,9 +610,13 @@ def prepare_phone_lexicon_espeak(
             for line in tqdm(f, desc="Running phonemizer G2P on vocab_files"):
                 # Split the line
                 words = line.strip().split()[0]
-                phones = backend.phonemize(words, separator=separator, strip=True)
+                phones = backend.phonemize(
+                    words, separator=separator, strip=True
+                )
                 for word, phone in zip(words, phones):
-                    phone = re.sub("\([^)]*\)", "", phone).strip() # remove code switching
+                    phone = re.sub(
+                        r"\([^)]*\)", "", phone
+                    ).strip()  # remove code switching
                     if add_word_boundary:
                         lexicon[word] = phone + " " + EOW
                     else:

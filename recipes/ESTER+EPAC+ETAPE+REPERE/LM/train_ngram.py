@@ -9,14 +9,15 @@ Authors
  * Pierre Champion 2023
 """
 
+import logging
 import os
 import sys
-import logging
-import speechbrain as sb
-from speechbrain.utils.distributed import run_on_main
 from hyperpyyaml import load_hyperpyyaml
+
+import speechbrain as sb
 import speechbrain.k2_integration as sbk2
 from speechbrain.utils.data_utils import get_list_from_csv
+from speechbrain.utils.distributed import run_on_main
 
 logger = logging.getLogger(__name__)
 
@@ -118,9 +119,11 @@ if __name__ == "__main__":
         kwargs={
             "lang_dir": hparams["lang_dir"],
             "vocab_files": [hparams["vocab_file"]],
-            "extra_csv_files": [hparams["output_folder"] + "/train.csv"]
-            if not hparams["skip_prep"]
-            else [],
+            "csv_files": (
+                [hparams["output_folder"] + "/train.csv"]
+                if not hparams["skip_prep"]
+                else []
+            ),
             "add_word_boundary": hparams["add_word_boundary"],
         },
     )

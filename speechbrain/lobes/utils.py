@@ -7,6 +7,7 @@ Authors
 import os
 import warnings
 
+
 def NumberOfLines(file, default, offset=-1):
     """Reads the number of line of a file or use default.
     Handy safeguard to make sure a default value equal file.readlines
@@ -42,12 +43,12 @@ def NumberOfLines(file, default, offset=-1):
         )
         number_of_line = default
     else:
-        with open(file, 'r') as fp:
+        with open(file, "r") as fp:
             number_of_line = len(fp.readlines())
             if number_of_line != default:
                 warnings.warn(
                     f"Number of line of '{file}' ({number_of_line}) differ from"
                     + f" default ({default})! Using '{number_of_line}' as value."
-                    + f" Please update your configuration."
+                    + " Please update your configuration."
                 )
     return number_of_line + offset

@@ -96,10 +96,8 @@ def ctc_k2(
     """
     input_lens = (input_lens * log_probs.shape[1]).round().int()
 
-    batch_size = log_probs.shape[0]
-
     decoding_graph, target_lens, mask = graph_compiler.compile(
-        texts, is_training=is_training, max_len = input_lens
+        texts, is_training=is_training, max_len=input_lens
     )
 
     # Remove computation when output label length is greater than input length.

@@ -51,7 +51,10 @@ class GraphCompiler(abc.ABC):
 
     @abc.abstractmethod
     def compile(
-        self, texts: List[str], is_training: bool = True, max_len: torch.float = torch.inf
+        self,
+        texts: List[str],
+        is_training: bool = True,
+        max_len: torch.float = torch.inf,
     ) -> Tuple[k2.Fsa, torch.Tensor, Optional[torch.Tensor]]:
         """
         Compile the graph for the given texts.
@@ -314,7 +317,10 @@ class CtcGraphCompiler(GraphCompiler):
         return self._device
 
     def compile(
-        self, texts: List[str], is_training: bool = True, max_len: torch.float = torch.inf
+        self,
+        texts: List[str],
+        is_training: bool = True,
+        max_len: torch.float = torch.inf,
     ) -> Tuple[k2.Fsa, torch.Tensor, Optional[torch.Tensor]]:
         """
         Build decoding graphs by composing ctc_topo with given transcripts.
@@ -365,8 +371,10 @@ class CtcGraphCompiler(GraphCompiler):
 
         mask = target_lens < max_len - 2
         if torch.any(~mask):
-            logger.debug("Removing elements from batch for CTC loss.\n"
-                "Output label length is greater than input length.")
+            logger.debug(
+                "Removing elements from batch for CTC loss.\n"
+                "Output label length is greater than input length."
+            )
         target_lens = target_lens[mask]
         word_idx = [id for i, id in enumerate(word_idx) if mask[i]]
 

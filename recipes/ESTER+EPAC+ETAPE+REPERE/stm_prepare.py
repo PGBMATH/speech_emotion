@@ -13,25 +13,21 @@ Author
 Pierre Champion
 """
 
-import logging
-import re
-import glob
-import os
 import csv
+import glob
+import logging
+import os
+import re
+import string
 import sys
 
-from num2words import num2words
 import ftfy
+import soundfile
+from num2words import num2words
 from tqdm import tqdm
 
-from speechbrain.dataio.dataio import (
-    load_pkl,
-    save_pkl,
-)
+from speechbrain.dataio.dataio import load_pkl, save_pkl
 from speechbrain.utils.data_utils import get_list_from_csv
-
-import soundfile
-import string
 
 logger = logging.getLogger(__name__)
 OPT_FILE = "opt_stm_prepare.pkl"
@@ -193,7 +189,7 @@ def prepare_stm(  # noqa
                     new_word_on_apostrophe=new_word_on_apostrophe,
                 )
 
-                # No transcription, might be only rire/jingle anotation
+                # No transcription, might be only rire/jingle annotation
                 if text == "":
                     continue
 
@@ -391,7 +387,7 @@ def normalize_text(text, new_word_on_apostrophe=True):
     text = ftfy.fix_text(text)
 
     # Names
-    text = re.sub(r"Franç§ois", "François", text)
+    text = re.sub(r"Franç§ois", "François", text)  # codespell:ignore
     text = re.sub(r"Schrà ¶der", "Schràder", text)
 
     text = re.sub(r"«", "", text)
@@ -419,7 +415,7 @@ def normalize_text(text, new_word_on_apostrophe=True):
         delset = delset.replace(char, "")
     text = text.translate(str.maketrans("", "", delset))
 
-    # Undecidable variant heared like on (n') en:
+    # Undecidable variant heard like on (n') en:
     text = re.sub(r"\(.+?\)", "", text)
     text = re.sub(r"\(\)", "", text)
     text = re.sub(r"(O.K.)", "ok", text)
@@ -484,7 +480,7 @@ def normalize_text(text, new_word_on_apostrophe=True):
     # ã used as à in most case
     text = re.sub(r"ã", "à", text)
 
-    # replace n succesive spaces with one space.
+    # replace n successive spaces with one space.
     text = re.sub(r"\s{2,}", " ", text)
     text = re.sub("^ ", "", text)
     text = re.sub(" $", "", text)
