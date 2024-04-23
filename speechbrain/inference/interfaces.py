@@ -131,6 +131,7 @@ def foreign_class(
     with open(hparams_local_path) as fin:
         hparams = load_hyperpyyaml(fin, overrides, overrides_must_match)
 
+    hparams["savedir"] = savedir
     # Pretraining:
     pretrainer = hparams["pretrainer"]
     pretrainer.set_collect_in(savedir)
@@ -457,6 +458,7 @@ class Pretrained(torch.nn.Module):
         if savedir is None:
             clsname = cls.__name__
             savedir = f"./pretrained_models/{clsname}-{hashlib.md5(source.encode('UTF-8', errors='replace')).hexdigest()}"
+
         hparams_local_path = fetch(
             filename=hparams_file,
             source=source,
@@ -494,6 +496,9 @@ class Pretrained(torch.nn.Module):
             hparams = load_hyperpyyaml(
                 fin, overrides, overrides_must_match=overrides_must_match
             )
+
+        # add savedir to hparams
+        hparams["savedir"] = savedir
 
         # Pretraining:
         pretrainer = hparams.get("pretrainer", None)
