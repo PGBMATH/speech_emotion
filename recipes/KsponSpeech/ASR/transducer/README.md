@@ -1,6 +1,6 @@
-# KsponSpeech ASR with Transformers
+# KsponSpeech ASR with Transducers
 
-This folder contains the scripts to train a Transformer-based speech recognizer using KsponSpeech.
+This folder contains the scripts to train a Transducer-based speech recognizer using KsponSpeech.
 
 You can download KsponSpeech at [Link](https://aihub.or.kr/aihubdata/data/view.do?currMenu=115&topMenu=100&aihubDataSe=realm&dataSetSn=123)
 
@@ -19,18 +19,15 @@ data_folder: /path/to/data/prep/results
 ```
 Run the following to start training
 ```bash
-python train.py hparams/conformer_medium.yaml
+python train.py hparams/conformer_transducer.yaml
 ```
 
 # Results
 | Release  |   hyperparams file    | eval clean WER | eval other WER | eval clean CER | eval other CER |                                   HuggingFace link                                   |                                               Model link                                                |    GPUs     |  Training time  |
 | :------: | :-------------------: | :------------: | :------------: | :------------: | :------------: | :----------------------------------------------------------------------------------: | :-----------------------------------------------------------------------------------------------------: | :---------: | :-------------: |
-| 04-16-24 | conformer_medium.yaml |     20.15%     |     24.75%     |     7.40%      |     7.96%      | [HuggingFace](https://huggingface.co/ddwkim/asr-conformer-transformerlm-ksponspeech) | [DropBox](https://www.dropbox.com/sh/uibokbz83o8ybv3/AACtO5U7mUbu_XhtcoOphAjza?dl=0) | 2xA100 40GB | 17 hours 1 mins |
-| 04-16-24 | conformer_small.yaml |     21.78%     |     26.48%     |     8.20%      |     8.99%      | [HuggingFace](https://huggingface.co/ddwkim/asr-conformer-small-transformerlm-ksponspeech) | [DropBox](https://www.dropbox.com/sh/uibokbz83o8ybv3/AACtO5U7mUbu_XhtcoOphAjza?dl=0) | 2xA100 40GB | 14 hours 5 mins |
-| 04-16-24 | branchformer_medium.yaml |     21.01%     |     25.68%     |     7.77%      |     8.59%      | [HuggingFace](https://huggingface.co/ddwkim/asr-branchformer-transformerlm-ksponspeech) | [DropBox](https://www.dropbox.com/sh/uibokbz83o8ybv3/AACtO5U7mUbu_XhtcoOphAjza?dl=0) | 2xA100 40GB | 16 hours 11 mins |
-
+| 04-22-24 | conformer_transducer.yaml |     21.38%     |     25.90%     |     8.20%      |     9.10%      | [HuggingFace](https://huggingface.co/ddwkim/asr-conformer-transducer-rnnlm-ksponspeech) | [DropBox](https://www.dropbox.com/sh/uibokbz83o8ybv3/AACtO5U7mUbu_XhtcoOphAjza?dl=0) | 2xA100 40GB | 4 days 1- hours |
 # PreTrained Model + Easy-Inference
-You can find the pre-trained model with an easy-inference function on HuggingFace: [HuggingFace](https://huggingface.co/speechbrain/asr-conformer-transformerlm-ksponspeech)
+You can find the pre-trained model with an easy-inference function on HuggingFace: [HuggingFace](https://huggingface.co/ddwkim/asr-conformer-transducer-rnnlm-ksponspeech)
 
 # About SpeechBrain
 - Website: https://speechbrain.github.io/
